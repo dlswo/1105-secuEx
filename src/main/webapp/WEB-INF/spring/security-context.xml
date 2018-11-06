@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="loginHandler" class="org.zerock.security.CustomLoginSuccessHandler"></bean>
+	<bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+	<bean id="customUserService" class="org.zerock.security.CustomUserDetailsService"></bean>
+
+	<security:http>
+		<security:intercept-url pattern="/sample/all" access="permitAll"/>
+	
+		<security:intercept-url pattern="/sample/member" 
+			access="hasRole('ROLE_MEMBER')"/>
+		
+		<security:intercept-url pattern="/sample/admin" 
+			access="hasRole('ROLE_ADMIN')"/>
+		
+		<security:form-login login-page="/customLogin"
+		authentication-success-handler-ref="loginHandler"
+		authentication-failure-handler-ref="loginHandler"/>
+		
+		<security:logout logout-url="/customLogout" />
+		
+		<security:access-denied-handler error-page="/accessError"/>		
+	</security:http>
+	
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserService">
+			<security:password-encoder ref="bcryptEncoder"></security:password-encoder>
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+</beans>
